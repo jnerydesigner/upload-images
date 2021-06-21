@@ -1,12 +1,34 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import multer from "multer";
+import { multerConfig } from "../libs/upload";
+import mongoose from 'mongoose';
+import { FileSchemma } from '../models/UploadFile';
+
+import { UploadFilesController } from "../modules/uploadFiles/UploadFilesController";
 
 const routes = Router();
 
 
-routes.get('/', (req: Request, res: Response) => {
-  return res.json({
-    message: 'Hello Word Nice'
-  });
+mongoose.connect('mongodb://localhost:27017/upfile',
+  { useNewUrlParser: true, useUnifiedTopology: true }
+);
+
+const uploadImages = multer(multerConfig).single("file");
+
+
+const uploadFilesController = new UploadFilesController;
+
+routes.get('/upload', async (req, res) => {
+  const uploads = await FileSchemma.find();
+
+  return res.json(uploads);
 });
+
+routes.get('/', uploadFilesController.handle);
+
+routes.post('/upfile',
+  uploadImages,
+  uploadFilesController.handle
+);
 
 export { routes }
