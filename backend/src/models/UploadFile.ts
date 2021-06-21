@@ -1,4 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { SchemaType } from 'mongoose';
+
+interface PreProps {
+  url: string;
+  key: string;
+}
 
 
 const UploadFileSchemma = new mongoose.Schema({
@@ -12,8 +17,10 @@ const UploadFileSchemma = new mongoose.Schema({
   }
 });
 
-UploadFileSchemma.pre('save', function () {
-
+UploadFileSchemma.pre<PreProps>('save', function () {
+  if (!this.url) {
+    this.url = `${process.env.APP_URL}/files/${this.key}`;
+  }
 })
 
 const FileSchemma = mongoose.model('UploadFile', UploadFileSchemma);
