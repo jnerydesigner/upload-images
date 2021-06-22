@@ -32,7 +32,6 @@ routes.post('/upfile',
 );
 
 routes.delete("/delfile/:id", async (req, res) => {
-  console.log('teste');
   const deleteFile = await FileSchemma.findById(req.params.id);
 
   await deleteFile.remove();
