@@ -9,7 +9,7 @@ import { UploadFilesController } from "../modules/uploadFiles/UploadFilesControl
 const routes = Router();
 
 
-mongoose.connect('mongodb://localhost:27017/upfile',
+mongoose.connect(String(process.env.MONGO_URL),
   { useNewUrlParser: true, useUnifiedTopology: true }
 );
 
@@ -30,5 +30,14 @@ routes.post('/upfile',
   uploadImages,
   uploadFilesController.handle
 );
+
+routes.delete("/delfile/:id", async (req, res) => {
+  console.log('teste');
+  const deleteFile = await FileSchemma.findById(req.params.id);
+
+  await deleteFile.remove();
+
+  return res.send();
+})
 
 export { routes }

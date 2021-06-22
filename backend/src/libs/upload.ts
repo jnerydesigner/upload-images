@@ -1,31 +1,40 @@
-import Express, { Request } from 'express';
+import { Request, Express } from 'express';
 import multer, { Options, diskStorage } from "multer";
 import multerS3, { AUTO_CONTENT_TYPE } from 'multer-s3';
-import crypto from "crypto";
 import { resolve } from "path";
 import { newFileName } from '../helper/newFileName';
 import aws from 'aws-sdk';
+
+
+
+interface CustonFileProps extends Express.Multer.File {
+  key: string;
+}
+
 
 const storageTypes = {
   local: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, resolve(__dirname, "..", "..", "tmp", "uploads"))
     },
-    filename: (req, file, cb) => {
+    filename: (req, file: CustonFileProps, cb) => {
       const fileName = newFileName(file.originalname);
 
-      return cb(null, fileName);
+      file.key = fileName;
+
+      return cb(null, file.key);
     }
   }),
   s3: multerS3({
     s3: new aws.S3(),
-    bucket: "upload-file-drcaneca",
+    bucket: String(process.env.BUCKET_NAME),
     contentType: AUTO_CONTENT_TYPE,
     acl: "public-read",
-    key: (req, file, cb) => {
+    key: (req, file: CustonFileProps, cb) => {
       const fileName = newFileName(file.originalname);
+      file.key = fileName;
 
-      return cb(null, fileName);
+      return cb(null, file.key);
     }
   })
 }
